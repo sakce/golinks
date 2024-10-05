@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "go-links"
+version = "0.1.0"
+description = ""
+authors = ["Jovan Sakovic <49978945+sakce@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = {extras = ["standard"], version = "^0.115.0"}
+uvicorn = "^0.31.0"
+google-cloud-storage = "^2.18.2"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.9"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

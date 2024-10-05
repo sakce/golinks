@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoLinks Control Panel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-blue-600 text-white py-4 px-6">
+                <h1 class="text-3xl font-bold">GoLinks Control Panel</h1>
+            </div>
+            <div class="p-6">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Add New Link</h2>
+                    <div class="flex space-x-4">
+                        <input type="text" id="newKey" placeholder="Key" class="flex-1 border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="newValue" placeholder="URL" class="flex-1 border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="addLink()" class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition duration-300">Add</button>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Update Link</h2>
+                    <div class="flex space-x-4">
+                        <input type="text" id="updateKey" placeholder="Key" class="flex-1 border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="text" id="updateValue" placeholder="New URL" class="flex-1 border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button onclick="updateLink()" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition duration-300">Update</button>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Delete Link</h2>
+                    <div class="flex space-x-4">
+                        <input type="text" id="deleteKey" placeholder="Key" class="flex-1 border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <button onclick="deleteLink()" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">All Links</h2>
+                    <ul id="linksList" class="bg-gray-50 rounded-md p-4 space-y-2"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fetchLinks() {
+            fetch('/go/links')
+                .then(response => response.json())
+                .then(data => {
+                    const linksList = document.getElementById('linksList');
+                    linksList.innerHTML = '';
+                    for (const [key, value] of Object.entries(data)) {
+                        linksList.innerHTML += `
+                            <li class="bg-white p-3 rounded shadow">
+                                <span class="font-semibold">${key}:</span> 
+                                <a href="${value}" class="text-blue-600 hover:underline" target="_blank">${value}</a>
+                            </li>
+                        `;
+                    }
+                });
+        }
+
+        function addLink() {
+            const key = document.getElementById('newKey').value;
+            const value = document.getElementById('newValue').value;
+            fetch('/go/cp/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ key, value }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchLinks();
+                document.getElementById('newKey').value = '';
+                document.getElementById('newValue').value = '';
+            });
+        }
+
+        function updateLink() {
+            const key = document.getElementById('updateKey').value;
+            const value = document.getElementById('updateValue').value;
+            fetch('/go/cp/update', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ key, value }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchLinks();
+                document.getElementById('updateKey').value = '';
+                document.getElementById('updateValue').value = '';
+            });
+        }
+
+        function deleteLink() {
+            const key = document.getElementById('deleteKey').value;
+            fetch(`/go/cp/delete/${key}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                fetchLinks();
+                document.getElementById('deleteKey').value = '';
+            });
+        }
+
+        fetchLinks();
+    </script>
+</body>
+</html>
